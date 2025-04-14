@@ -484,6 +484,7 @@ setup_laravel() {
 
   # Update .env file with proper domain format
   sed -i "s|^APP_URL=.*|APP_URL=https://$CLEAN_DOMAIN|" .env
+  sed -i "s|^APP_DEBUG=.*|APP_DEBUG=false|" .env
   sed -i "s|^LICENSE_KEY=.*|LICENSE_KEY=$LICENSE_KEY|" .env
   sed -i "s|^PROXYCHECK_API_KEY=.*|PROXYCHECK_API_KEY=$PROXYCHECK_API_KEY|" .env
   sed -i "s|^PTERODACTYL_API_URL=.*|PTERODACTYL_API_URL=$PTERO_API_URL|" .env
