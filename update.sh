@@ -1,7 +1,6 @@
 #!/bin/bash
 clear
 
-# ===== IMPROVED COLOR DEFINITIONS WITH BETTER CONTRAST =====
 RED="\033[1;31m"
 GREEN="\033[1;32m"
 CYAN="\033[1;36m"
@@ -13,7 +12,6 @@ BOLD="\033[1m"
 DIM="\033[2m"
 RESET="\033[0m"
 
-# Animated spinner for long-running processes
 spinner() {
   local pid=$1
   local delay=0.1
@@ -28,7 +26,6 @@ spinner() {
   printf "    \b\b\b\b"
 }
 
-# Progress bar function
 progress_bar() {
   local progress=$1
   local total=$2
@@ -43,7 +40,6 @@ progress_bar() {
   printf "${YELLOW}] ${WHITE}%3d%%${RESET}" $percentage
 }
 
-# Temporary state file to track update progress
 STATE_FILE="/tmp/dezerx_update_state.json"
 
 check_root() {
@@ -660,23 +656,20 @@ show_success_message() {
   # Clean up state file
   rm -f "$STATE_FILE"
 }
-check_root() { :; }
-display_logo() { :; }
-check_prerequisites() { :; }
-verify_license() { :; }
-locate_installation() { :; }
-backup_env() { :; }
-prepare_for_update() { :; }
-update_application() { :; }
-restart_services() { :; }
-finalize_update() { :; }
-
-# Main function - simplified for testing just the success message
+# Main function
 main() {
-  # Set variables for testing the success message
-  CLEAN_DOMAIN="example.com"
-  INSTALL_DIR="/var/www/DezerX"
-  ENV_BACKUP="/var/www/DezerX/.env.backup-20250414120000"
-  
+  check_root
+  display_logo
+  check_prerequisites
+  verify_license
+  locate_installation
+  backup_env
+  prepare_for_update
+  update_application
+  restart_services
+  finalize_update
   show_success_message
 }
+
+# Run the main function
+main
