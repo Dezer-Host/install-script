@@ -660,5 +660,3 @@ show_success_message() {
   # Clean up state file
   rm -f "$STATE_FILE"
 }
-
-main
