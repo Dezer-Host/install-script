@@ -660,3 +660,20 @@ show_success_message() {
   # Clean up state file
   rm -f "$STATE_FILE"
 }
+# Main function
+main() {
+  check_root
+  display_logo
+  check_prerequisites
+  verify_license
+  locate_installation
+  backup_env
+  prepare_for_update
+  update_application
+  restart_services
+  finalize_update
+  show_success_message
+}
+
+# Run the main function
+main
