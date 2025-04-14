@@ -534,7 +534,8 @@ setup_laravel() {
   else
     echo -e "${CYAN}📦 Setting up the database...${RESET}"
     run_quietly php artisan key:generate --force
-    run_quietly php artisan migrate --seed --force
+    run_quietly php artisan migrate
+    run_quietly php artisan db:seed --force
     mark_step_completed "migrations_run"
   fi
   
