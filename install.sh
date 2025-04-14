@@ -135,19 +135,37 @@ check_existing_installation() {
   fi
 }
 
-verify_license() {
-  echo -e "\n${BOLD}${YELLOW}==========[ License Verification ]==========${RESET}"
 
-  read -p "Enter your license key: " LICENSE_KEY
-  read -p "Enter your domain (must point to this server): " DOMAIN
+verify_license() {
+  print_section_header "License Verification"
+
+  echo -e "${CYAN}🔑 Please enter your license information:${RESET}\n"
+  
+  read -p "$(echo -e "${WHITE}Enter your license key: ${RESET}")" LICENSE_KEY
+  read -p "$(echo -e "${WHITE}Enter your domain (must point to this server): ${RESET}")" DOMAIN
   
   CLEAN_DOMAIN=$(echo "$DOMAIN" | sed -e 's|^https\?://||' -e 's|/.*$||')
   export CLEAN_DOMAIN
 
   echo -e "\n${CYAN}🔍 Verifying license...${RESET}"
   
+  # Show animated spinner during verification
+  (
+    i=0
+    sp="⣾⣽⣻⢿⡿⣟⣯⣷"
+    echo -n ' '
+    while [ $i -lt 10 ]; do
+      printf "\b${CYAN}${sp:i++%${#sp}:1}${RESET}"
+      sleep 0.1
+    done
+  ) &
+  spinner_pid=$!
+  
+  sleep 1 # Give spinner some time to run
+  
   if ! curl -s --head https://license-check.dezerx.com > /dev/null; then
-    echo -e "${RED}❌ Cannot reach license verification server.${RESET}"
+    kill $spinner_pid 2>/dev/null
+    echo -e "\n${RED}❌ Cannot reach license verification server.${RESET}"
     exit 1
   fi
   
@@ -155,21 +173,25 @@ verify_license() {
     -H "Content-Type: application/json" \
     -d "{\"domain_or_subdomain\":\"$DOMAIN\", \"license_key\":\"$LICENSE_KEY\"}")
 
+  kill $spinner_pid 2>/dev/null
+  printf "\b \b"
+  
   if command -v jq &> /dev/null; then
     if [[ "$VERIFY_RESPONSE" == *'"verify":false'* ]]; then
-      echo -e "${RED}❌ License verification failed: $(echo $VERIFY_RESPONSE | jq -r '.message')${RESET}"
+      echo -e "\n${RED}❌ License verification failed: $(echo $VERIFY_RESPONSE | jq -r '.message')${RESET}"
       exit 1
     fi
   else
     if [[ "$VERIFY_RESPONSE" == *'"verify":false'* ]]; then
-      echo -e "${RED}❌ License verification failed. Please check your license key and domain.${RESET}"
+      echo -e "\n${RED}❌ License verification failed. Please check your license key and domain.${RESET}"
       exit 1
     fi
   fi
   
-  echo -e "${GREEN}✅ License verified successfully.${RESET}"
+  echo -e "\n${GREEN}✅ License verified successfully.${RESET}"
   export LICENSE_KEY
   mark_step_completed "license_verified"
+  sleep 1
 }
 
 install_dependencies() {
