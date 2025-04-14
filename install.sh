@@ -135,7 +135,16 @@ check_existing_installation() {
   fi
 }
 
-
+print_section_header() {
+  local title=$1
+  local width=50
+  local padding=$(( (width - ${#title} - 6) / 2 ))
+  echo
+  echo -e "${BOLD}${YELLOW}╔═$( printf '═%.0s' $(seq 1 $width) )═╗${RESET}"
+  echo -e "${BOLD}${YELLOW}║ ${WHITE}$( printf ' %.0s' $(seq 1 $padding) )[ ${CYAN}$title${WHITE} ]$( printf ' %.0s' $(seq 1 $padding) ) ${YELLOW}║${RESET}"
+  echo -e "${BOLD}${YELLOW}╚═$( printf '═%.0s' $(seq 1 $width) )═╝${RESET}"
+  echo
+}
 verify_license() {
   print_section_header "License Verification"
 
