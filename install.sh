@@ -375,55 +375,55 @@ configure_installation() {
 setup_database() {
   echo -e "${CYAN}🧱 Creating database and user...${RESET}"
 
-if ! systemctl is-active --quiet mariadb; then
-  echo -e "${BLUE}🔄 Starting MariaDB service...${RESET}"
-  systemctl start mariadb
-  if [ $? -ne 0 ]; then
-    echo -e "${RED}❌ Failed to start MariaDB. Exiting.${RESET}"
-    exit 1
-  else
-    echo -e "${GREEN}✅ MariaDB started.${RESET}"
+  if ! systemctl is-active --quiet mariadb; then
+    echo -e "${BLUE}🔄 Starting MariaDB service...${RESET}"
+    systemctl start mariadb
+    if [ $? -ne 0 ]; then
+      echo -e "${RED}❌ Failed to start MariaDB. Exiting.${RESET}"
+      exit 1
+    else
+      echo -e "${GREEN}✅ MariaDB started.${RESET}"
+    fi
   fi
-fi
 
-DB_PASSWORD=$(openssl rand -base64 18)
-DB_NAME="dezerx"
-DB_USERNAME="dezer"
-DB_HOST="127.0.0.1"
-DB_PORT="3306"
+  DB_PASSWORD=$(openssl rand -base64 18)
+  DB_NAME="dezerx"
+  DB_USERNAME="dezer"
+  DB_HOST="127.0.0.1"
+  DB_PORT="3306"
 
-# Check if "dezerx" database already exists
-if mysql -u root -e "USE $DB_NAME;" 2>/dev/null; then
-  while :; do
-    RAND_SUFFIX=$(( RANDOM % 9000 + 1000 ))
-    NEW_DB_NAME="dezerx_$RAND_SUFFIX"
-    if ! mysql -u root -e "USE $NEW_DB_NAME;" 2>/dev/null; then
-      DB_NAME="$NEW_DB_NAME"
-      break
-    fi
-  done
-  echo -e "${YELLOW}⚠️ Database 'dezerx' already exists. Using unique name: ${BOLD}${BLUE}$DB_NAME${RESET}"
-else
-  echo -e "${BLUE}📝 Database name set to: ${BOLD}$DB_NAME${RESET}"
-fi
+  # Check if "dezerx" database already exists
+  if mariadb -u root -e "USE $DB_NAME;" 2>/dev/null; then
+    while :; do
+      RAND_SUFFIX=$(( RANDOM % 9000 + 1000 ))
+      NEW_DB_NAME="dezerx_$RAND_SUFFIX"
+      if ! mariadb -u root -e "USE $NEW_DB_NAME;" 2>/dev/null; then
+        DB_NAME="$NEW_DB_NAME"
+        break
+      fi
+    done
+    echo -e "${YELLOW}⚠️ Database 'dezerx' already exists. Using unique name: ${BOLD}${BLUE}$DB_NAME${RESET}"
+  else
+    echo -e "${BLUE}📝 Database name set to: ${BOLD}$DB_NAME${RESET}"
+  fi
 
-# Check if user exists and create a new one if needed
-if mysql -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$DB_USERNAME');" | grep -q 1; then
-  while :; do
-    RAND_SUFFIX=$(( RANDOM % 9000 + 1000 ))
-    NEW_DB_USER="dezer_$RAND_SUFFIX"
-    if ! mysql -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$NEW_DB_USER');" | grep -q 1; then
-      DB_USERNAME="$NEW_DB_USER"
-      break
-    fi
-  done
-  echo -e "${YELLOW}⚠️ User 'dezer' already exists. Using unique user: ${BOLD}${BLUE}$DB_USERNAME${RESET}"
-else
-  echo -e "${BLUE}📝 DB user set to: ${BOLD}$DB_USERNAME${RESET}"
-fi
+  # Check if user exists and create a new one if needed
+  if mariadb -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$DB_USERNAME');" | grep -q 1; then
+    while :; do
+      RAND_SUFFIX=$(( RANDOM % 9000 + 1000 ))
+      NEW_DB_USER="dezer_$RAND_SUFFIX"
+      if ! mariadb -u root -sse "SELECT EXISTS(SELECT 1 FROM mysql.user WHERE user = '$NEW_DB_USER');" | grep -q 1; then
+        DB_USERNAME="$NEW_DB_USER"
+        break
+      fi
+    done
+    echo -e "${YELLOW}⚠️ User 'dezer' already exists. Using unique user: ${BOLD}${BLUE}$DB_USERNAME${RESET}"
+  else
+    echo -e "${BLUE}📝 DB user set to: ${BOLD}$DB_USERNAME${RESET}"
+  fi
 
-echo -e "${BLUE}🚀 Running MySQL commands to create database and user...${RESET}"
-mysql -u root <<MYSQL_SCRIPT
+  echo -e "${BLUE}🚀 Running MySQL commands to create database and user...${RESET}"
+  mariadb -u root <<MYSQL_SCRIPT
 CREATE DATABASE IF NOT EXISTS \`$DB_NAME\`;
 CREATE USER '$DB_USERNAME'@'127.0.0.1' IDENTIFIED BY '$DB_PASSWORD';
 CREATE USER '$DB_USERNAME'@'localhost' IDENTIFIED BY '$DB_PASSWORD';
@@ -432,14 +432,13 @@ GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$DB_USERNAME'@'localhost' WITH GRANT 
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
 
-if [ $? -eq 0 ]; then
-  echo -e "${GREEN}✅ Database and user successfully created.${RESET}"
-  echo -e "${GREEN}ℹ️  Database: ${BOLD}$DB_NAME${RESET}, Password: ${BOLD}**********${RESET} User: ${BOLD}$DB_USERNAME${RESET}"
-else
-  echo -e "${RED}❌ Failed to create database and user. Check MySQL permissions or syntax.${RESET}"
-  exit 1
-fi
-
+  if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ Database and user successfully created.${RESET}"
+    echo -e "${GREEN}ℹ️  Database: ${BOLD}$DB_NAME${RESET}, Password: ${BOLD}**********${RESET} User: ${BOLD}$DB_USERNAME${RESET}"
+  else
+    echo -e "${RED}❌ Failed to create database and user. Check MySQL permissions or syntax.${RESET}"
+    exit 1
+  fi
 
   mark_step_completed "database_setup"
 }
