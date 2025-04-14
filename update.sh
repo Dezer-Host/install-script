@@ -660,20 +660,23 @@ show_success_message() {
   # Clean up state file
   rm -f "$STATE_FILE"
 }
-# Main function
+check_root() { :; }
+display_logo() { :; }
+check_prerequisites() { :; }
+verify_license() { :; }
+locate_installation() { :; }
+backup_env() { :; }
+prepare_for_update() { :; }
+update_application() { :; }
+restart_services() { :; }
+finalize_update() { :; }
+
+# Main function - simplified for testing just the success message
 main() {
-  check_root
-  display_logo
-  check_prerequisites
-  verify_license
-  locate_installation
-  backup_env
-  prepare_for_update
-  update_application
-  restart_services
-  finalize_update
+  # Set variables for testing the success message
+  CLEAN_DOMAIN="example.com"
+  INSTALL_DIR="/var/www/DezerX"
+  ENV_BACKUP="/var/www/DezerX/.env.backup-20250414120000"
+  
   show_success_message
 }
-
-# Run the main function
-main
